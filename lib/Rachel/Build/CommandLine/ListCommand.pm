@@ -22,7 +22,7 @@ sub build_from_command_line {
     my $help;
     GetOptions(
         "h|help|?"       => \$help,
-    ) || $class->usage("Invalid command-line args");
+    ) || $class->invocation_error("Invalid command-line args", 1);
 
     $class->usage if $help;
 

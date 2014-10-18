@@ -1,4 +1,5 @@
 rachel-build
 ============
 
-Build process for RACHEL installations
+An automated build process for RACHEL.  This is a work in progress and doesn't
+do anything useful yet.

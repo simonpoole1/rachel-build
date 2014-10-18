@@ -6,9 +6,10 @@ with 'Rachel::Build::CommandLine::Command';
 
 use Carp;
 use Getopt::Long;
+use Log::Any qw($log);
 use Readonly;
 
-use Rachel::Build::Fetcher;
+use Rachel::Build::Fetchers::RachelModuleFetcher;
 
 has 'modules'   => ( is => 'ro', isa => 'ArrayRef[Str]' );
 has 'cache_dir' => ( is => 'ro', isa => 'Str' );
@@ -38,7 +39,7 @@ sub build_from_command_line {
         "m|module=s@"    => \@modules,
         "n|dry-run"      => \$dry_run,
         "h|help|?"       => \$help,
-    ) || $class->usage("Invalid command-line args");
+    ) || $class->invocation_error("Invalid command-line args", 1);
 
     $class->usage if $help;
 
@@ -52,8 +53,7 @@ sub build_from_command_line {
 sub run {
     my ($self) = @_;
 
-    print STDERR "Fetching modules: " . join(", ", @{$self->modules})."\n";
-    my $fetcher = Rachel::Build::Fetcher->new(
+    my $fetcher = Rachel::Build::Fetchers::RachelModuleFetcher->new(
         modules   => $self->modules,
         cache_dir => $self->cache_dir,
         dry_run   => $self->dry_run,

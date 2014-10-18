@@ -10,6 +10,7 @@ use RachelPerlSetup;
 use Carp;
 use English qw(-no_match_vars);
 use Getopt::Long;
+use Log::Any qw($log);
 use Readonly;
 
 Readonly::Hash my %COMMAND_HANDLERS => (
@@ -17,38 +18,52 @@ Readonly::Hash my %COMMAND_HANDLERS => (
     fetch => 'Rachel::Build::CommandLine::FetchCommand',
 );
 
-sub usage {
-    my ($err) = @_;
-    my $fh = $err ? \*STDERR : \*STDOUT;
-    print $fh "$err\n\n" if $err;
-    print <<"EOF";
+Readonly::Scalar my $USAGE => <<"EOF";
 Usage:  $0 <command> [options]
 
 Commands:
-    list          Lists available modules
-    fetch         Fetches RACHEL content
+    list           Lists available modules
+    fetch          Fetches RACHEL content
 
 For help on a specific command, use:
-    $0 <command> help
-
+    $0 help <command>
 EOF
-    exit ($err ? 1 : 0);
-}
 
-my ($COMMAND);
+################################################################################
 
-$COMMAND = shift @ARGV;
+RachelPerlSetup::set_info_log_level();
+my $COMMAND = shift @ARGV;
+_usage unless $COMMAND;
+
+# Support the "$0 help <command>" syntax
+my $HELP = ($COMMAND =~ m/^(help|-\?|--help|-h)$/);
+$COMMAND = shift @ARGV if $HELP;
+_usage unless $COMMAND;
+
 $COMMAND =~ s/^--//;
-usage unless $COMMAND;
-usage("Unrecognised command: $COMMAND") unless $COMMAND_HANDLERS{$COMMAND};
+_usage unless $COMMAND;
 
-$ARGV[0] = '--help' if @ARGV && $ARGV[0] && $ARGV[0] eq 'help';
-process_command($COMMAND);
+unshift @ARGV, '--help' if $HELP;
+
+_invocation_error("Unrecognised command: $COMMAND") unless $COMMAND_HANDLERS{$COMMAND};
+
+_process_command($COMMAND);
 exit 0;
 
 ################################################################################
 
-sub process_command {
+sub _invocation_error {
+    my ($err) = @_;
+    print STDERR "$err\n\n$USAGE\n";
+    exit 1;
+}
+
+sub _usage {
+    print $USAGE, "\n";
+    exit 0;
+}
+
+sub _process_command {
     my ($command) = @_;
 
     # Find and load the handler for this package

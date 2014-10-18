@@ -1,0 +1,5 @@
+#!/bin/sh
+
+DEPS="liblog-any-perl liblog-any-adapter-log4perl-perl"
+sudo apt-get install $DEPS
+
