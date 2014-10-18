@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# Initialise environment for this project
+BEGIN { use File::Basename qw(dirname); unshift @INC, dirname(__FILE__); }
+use RachelPerlSetup;
+
+use Carp;
+use English qw(-no_match_vars);
+use Getopt::Long;
+use Readonly;
+
+Readonly::Hash my %COMMAND_HANDLERS => (
+    list  => 'Rachel::Build::CommandLine::ListCommand',
+    fetch => 'Rachel::Build::CommandLine::FetchCommand',
+);
+
+sub usage {
+    my ($err) = @_;
+    my $fh = $err ? \*STDERR : \*STDOUT;
+    print $fh "$err\n\n" if $err;
+    print <<"EOF";
+Usage:  $0 <command> [options]
+
+Commands:
+    list          Lists available modules
+    fetch         Fetches RACHEL content
+
+For help on a specific command, use:
+    $0 <command> help
+
+EOF
+    exit ($err ? 1 : 0);
+}
+
+my ($COMMAND);
+
+$COMMAND = shift @ARGV;
+$COMMAND =~ s/^--//;
+usage unless $COMMAND;
+usage("Unrecognised command: $COMMAND") unless $COMMAND_HANDLERS{$COMMAND};
+
+$ARGV[0] = '--help' if @ARGV && $ARGV[0] && $ARGV[0] eq 'help';
+process_command($COMMAND);
+exit 0;
+
+################################################################################
+
+sub process_command {
+    my ($command) = @_;
+
+    # Find and load the handler for this package
+    my $handler_module = $COMMAND_HANDLERS{$command};
+    eval "require ${handler_module};";
+    confess $EVAL_ERROR if $EVAL_ERROR;
+
+    # Instantiate and run it
+    my $handler = $handler_module->build_from_command_line();
+    $handler->run();
+    return;
+}
+
