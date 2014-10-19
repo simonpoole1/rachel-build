@@ -33,15 +33,15 @@ EOF
 
 RachelPerlSetup::set_info_log_level();
 my $COMMAND = shift @ARGV;
-_usage unless $COMMAND;
+_usage() unless $COMMAND;
 
 # Support the "$0 help <command>" syntax
 my $HELP = ($COMMAND =~ m/^(help|-\?|--help|-h)$/);
 $COMMAND = shift @ARGV if $HELP;
-_usage unless $COMMAND;
+_usage() unless $COMMAND;
 
 $COMMAND =~ s/^--//;
-_usage unless $COMMAND;
+_usage() unless $COMMAND;
 
 unshift @ARGV, '--help' if $HELP;
 
