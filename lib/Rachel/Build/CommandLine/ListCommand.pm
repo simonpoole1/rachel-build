@@ -29,7 +29,7 @@ sub build_from_command_line {
     return $class->new();
 }
 
-sub run {
+sub run_command {
     print "Available modules:\n",
         Rachel::Build::ModuleConfig::list_available_modules(),
         "\n";

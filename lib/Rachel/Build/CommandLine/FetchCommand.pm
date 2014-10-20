@@ -27,21 +27,24 @@ Options:
                            specified multiple times, or with a comma-separated
                            list. [required]
     -n, --dry-run          Output what would be done, but don't actually do it.
+    -v, --verbose          Verbose logging
 EOF
 }
 
 sub build_from_command_line {
     my ($class) = @_;
 
-    my ($cache_dir, @modules, $dry_run, $help);
+    my ($cache_dir, @modules, $dry_run, $help, $verbose);
     GetOptions(
         "c|cache-dir=s"  => \$cache_dir,
         "m|module=s@"    => \@modules,
         "n|dry-run"      => \$dry_run,
+        "v|verbose"      => \$verbose,
         "h|help|?"       => \$help,
     ) || $class->invocation_error("Invalid command-line args", 1);
 
     $class->usage if $help;
+    Rachel::Build::Util::Log::set_debug_log_level() if $verbose;
 
     return $class->new(
         modules   => $class->process_module_options(\@modules),
@@ -50,7 +53,7 @@ sub build_from_command_line {
     );
 }
 
-sub run {
+sub run_command {
     my ($self) = @_;
 
     my $fetcher = Rachel::Build::Fetchers::RachelModuleFetcher->new(

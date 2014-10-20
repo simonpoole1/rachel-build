@@ -8,7 +8,7 @@ use Rachel::Build::ModuleConfig;
 
 requires 'get_usage';
 requires 'build_from_command_line';
-requires 'run';
+requires 'run_command';
 
 sub invocation_error {
     my ($class, $err, $show_usage) = @_;

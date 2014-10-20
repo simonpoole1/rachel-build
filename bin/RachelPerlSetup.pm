@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 use Cwd qw(abs_path);
+use English qw(-no_match_vars);
 use File::Basename qw(dirname);
 use File::Spec;
 use Log::Any::Adapter;
@@ -13,40 +14,36 @@ use Log::Log4perl qw(:easy);
 
 my $RACHEL_BUILD_ROOT_DIR;
 
-################################################################################
-
-sub set_info_log_level {
-    get_logger('')->level($INFO);
-}
-
-sub set_debug_log_level {
-    get_logger('')->level($DEBUG);
-}
+my $SETUP_DONE = 0;
 
 ################################################################################
 
-sub _find_root_dir {
+sub _set_up_environment {
     my $bin_dir = dirname(__FILE__);
-    return abs_path(File::Spec->catdir($bin_dir, File::Spec->updir));
+
+    my $root_dir = abs_path(File::Spec->catdir($bin_dir, File::Spec->updir));
+    $ENV{RACHEL_BUILD_ROOT_DIR} = $root_dir;
+
+    my $conf_dir = abs_path(File::Spec->catdir($root_dir, 'config'));
+    $ENV{RACHEL_BUILD_CONFIG_DIR} = $conf_dir;
+    return;
 }
 
 sub _add_libs_to_perl_path {
-    my $lib_dir = File::Spec->catdir($RACHEL_BUILD_ROOT_DIR, 'lib');
+    my $lib_dir = File::Spec->catdir($ENV{RACHEL_BUILD_ROOT_DIR}, 'lib');
     unshift @INC, abs_path($lib_dir);
     return;
 }
 
-sub _setup_logging {
-    my $conf_file = File::Spec->catfile(
-        $RACHEL_BUILD_ROOT_DIR, 'config', 'log4perl.conf');
-    Log::Log4perl::init($conf_file);
-    Log::Any::Adapter->set('Log4perl');
-}
-
 BEGIN {
-    $RACHEL_BUILD_ROOT_DIR = _find_root_dir();
-    _add_libs_to_perl_path();
-    _setup_logging();
+    if (!$SETUP_DONE) {
+        $SETUP_DONE = 1;
+        _set_up_environment();
+        _add_libs_to_perl_path();
+
+        require Rachel::Build::Util::Log;
+        Rachel::Build::Util::Log::setup_logging();
+    }
 }
 
 1;

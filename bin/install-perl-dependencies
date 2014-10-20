@@ -1,5 +1,5 @@
 #!/bin/sh
 
-DEPS="liblog-any-perl liblog-any-adapter-log4perl-perl"
+DEPS="liblog-any-perl liblog-any-adapter-log4perl-perl libscope-guard-perl"
 sudo apt-get install $DEPS
 

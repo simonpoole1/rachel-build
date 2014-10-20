@@ -9,13 +9,14 @@ use RachelPerlSetup;
 
 use Carp;
 use English qw(-no_match_vars);
-use Getopt::Long;
-use Log::Any qw($log);
 use Readonly;
+
+use Rachel::Build::Util::Log;
 
 Readonly::Hash my %COMMAND_HANDLERS => (
     list  => 'Rachel::Build::CommandLine::ListCommand',
     fetch => 'Rachel::Build::CommandLine::FetchCommand',
+    build => 'Rachel::Build::CommandLine::BuildCommand',
 );
 
 Readonly::Scalar my $USAGE => <<"EOF";
@@ -24,6 +25,7 @@ Usage:  $0 <command> [options]
 Commands:
     list           Lists available modules
     fetch          Fetches RACHEL content
+    build          Builds a RACHEL image
 
 For help on a specific command, use:
     $0 help <command>
@@ -31,7 +33,8 @@ EOF
 
 ################################################################################
 
-RachelPerlSetup::set_info_log_level();
+Rachel::Build::Util::Log::set_info_log_level();
+
 my $COMMAND = shift @ARGV;
 _usage() unless $COMMAND;
 
@@ -73,7 +76,7 @@ sub _process_command {
 
     # Instantiate and run it
     my $handler = $handler_module->build_from_command_line();
-    $handler->run();
+    $handler->run_command();
     return;
 }
 

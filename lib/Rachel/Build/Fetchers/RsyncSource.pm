@@ -4,6 +4,7 @@ use Moose;
 use namespace::autoclean;
 
 use English qw(-no_match_vars);
+use IPC::System::Simple qw(run);
 use Log::Any qw($log);
 use Readonly;
 
@@ -44,17 +45,7 @@ sub fetch {
 
     # Execute the command
     # TODO: redirect stdout
-    my $ret = system(@cmd);
-    if ($ret) {
-        my $err = $CHILD_ERROR;
-        if ($CHILD_ERROR == -1) {
-            confess "Failed to execute $RSYNC_EXE";
-        } elsif ($CHILD_ERROR & 127) {
-            die sprintf('rsync died with signal %d', $RSYNC_EXE, ($CHILD_ERROR & 127));
-        } else {
-            die sprintf('rsync exited with value %d', ($CHILD_ERROR >> 8));
-        }
-    }
+    run(@cmd);
     return;
  }
 
