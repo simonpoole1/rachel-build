@@ -50,7 +50,7 @@ Readonly::Hash my %BUILDERS => (
 
 sub get_usage {
     my $usage = <<"USAGE";
-Usage:  $0 fetch [options]
+Usage:  $0 build [options]
 
 Options:
     -t, --type=BUILD_TYPE  See below for available build types. [required]
