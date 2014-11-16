@@ -163,7 +163,7 @@ sub _construct_pi64_builder {
         base_image  => $self->base_image,
         dry_run     => $self->dry_run,
         build_dir   => $build_dir,
-        size        => 64 * 1024 * 1024 * 1024,
+        size        => int ((64 * 1024 * 1024 * 1024) * 0.9), # only use 90% to allow for different SD-card sizes
         output_file => $self->output,
     );
     return $builder;
@@ -177,7 +177,7 @@ sub _construct_pi32_builder {
         base_image  => $self->base_image,
         dry_run     => $self->dry_run,
         build_dir   => $build_dir,
-        size        => 32 * 1024 * 1024 * 1024,
+        size        => int ((32 * 1024 * 1024 * 1024) * 0.9),
         output_file => $self->output,
     );
     return $builder;
@@ -192,7 +192,7 @@ sub _construct_pi16_builder {
         dry_run     => $self->dry_run,
         build_dir   => $build_dir,
         cache_dir   => $self->cache_dir,
-        size        => 16 * 1024 * 1024 * 1024,
+        size        => int ((16 * 1024 * 1024 * 1024) * 0.9),
         output_file => $self->output,
     );
     return $builder;
